@@ -11,31 +11,30 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const navItems = {
+type NavItem = "WOMEN" | "MEN" | "TRENDING";
+type MenuSection = { title: string; items: string[]; badge?: "NEW" | "HOT" };
+type MenuColumn = MenuSection[];
+
+const slugify = (value: string) => value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+const navItems: Record<NavItem, MenuColumn[]> = {
   WOMEN: [
-    "NEW IN",
-    "CLOTHING",
-    "DRESSES",
-    "TOPS",
-    "BOTTOMS",
-    "SHOES",
-    "ACCESSORIES",
+    [{ title: "DRESSES", items: ["A-Line Dresses", "Mini Dresses", "Midi Dresses", "Maxi Dresses", "Asymmetrical"] }, { title: "SETS", items: ["Bodysuits", "Co-Ord Sets", "Track Suits"] }, { title: "ACTIVEWEAR", items: ["Bottomwear", "Sets", "Topwear"] }, { title: "FOOTWEAR", items: ["Casual Shoes", "Flats", "Sneakers"] }],
+    [{ title: "TOPWEAR", items: ["Shirts", "Tanks & Camis", "Tops", "T-Shirts"] }, { title: "BOTTOMWEAR", items: ["Capris", "Cargos", "Leggings", "Palazzos", "Shorts", "Skirts", "Track Pants", "Trousers"] }, { title: "BEACHWEAR", items: ["Swimwear"] }],
+    [{ title: "DENIM", items: ["Dress", "Jeans", "Shorts", "Skirts", "Tops"] }, { title: "LINGERIE", items: ["Bras", "Lingerie Sets", "Panties", "Shapewear"] }, { title: "LOUNGEWEAR", items: ["Night & Lounge Sets", "Nightshirts & Nighties", "Pyjamas & Lounge Shorts"] }],
+    [{ title: "OUTERWEAR", items: ["Hoodies", "Jackets", "Shrugs", "Sweaters", "Sweatshirt"] }, { title: "JEWELLERY", badge: "NEW", items: ["Brooches & Pins", "Bangles & Bracelets", "Earrings", "Hair Accessories", "Jewellery Sets", "Necklaces & Pendants", "Rings"] }, { title: "CLOTHING ACCESSORIES", items: ["Socks & Stockings"] }, { title: "OFFERS", badge: "HOT", items: [] }],
   ],
   MEN: [
-    "NEW IN",
-    "T-SHIRTS",
-    "SHIRTS",
-    "HOODIES",
-    "PANTS",
-    "SHOES",
-    "ACCESSORIES",
+    [{ title: "T-SHIRTS", items: ["Mock Neck T-Shirts", "Polo Collar T-Shirts", "V-Neck T-Shirts", "Oversized T-Shirts", "Graphic T-Shirts"] }, { title: "SHIRTS", items: ["Shackets Shirts", "Crochet Shirts", "Short Sleeve Shirts", "Long Sleeve Shirts", "Casual Shirts"] }, { title: "LOUNGEWEAR", items: ["Night & Loungewear Sets", "Pyjamas & Lounge Shorts"] }, { title: "CO-ORD SETS", items: [] }, { title: "ACCESSORIES", items: ["Backpacks", "Utility Bags"] }],
+    [{ title: "JEWELLERY", items: ["Bracelets & Kadas", "Chains", "Earrings", "Rings", "Cufflinks & Tiepins"] }, { title: "DENIM JEANS", items: ["Baggy Jeans", "Relaxed Jeans", "Skinny Jeans", "Straight Jeans", "Flared Jeans", "Slim Jeans", "Tapered Jeans", "Washed Jeans"] }, { title: "INNERWEAR", items: ["Boxers, Briefs & Trunks", "Vests"] }],
+    [{ title: "FOOTWEAR", items: ["Flip Flop & Slippers", "Sandals", "Casual Shoes", "Sneakers & Sport Shoes", "Formal Shoes", "Boots"] }, { title: "TROUSERS & PANTS", items: ["Flat Front Trousers", "Pleated Trousers", "Cargo Pants", "Chinos & Khakis Pants", "Dress Pants", "Skinny & Tapered Pants", "Slim Fit Pants", "Relaxed Fit Pants"] }, { title: "CLOTHING ACCESSORIES", items: ["Socks"] }],
+    [{ title: "ACTIVEWEAR", items: ["Shorts", "Track Pants", "Tracksuits", "Activewear Polos", "Activewear T-Shirts", "Jackets"] }, { title: "SHORTS & 3/4THS", items: ["Denim Shorts", "Cargo Shorts", "City Shorts"] }, { title: "FEATURED", items: ["Jeans Under MRP 999", "Shorts Under MRP 699", "Shirts Under MRP 599", "Tshirts Under MRP 499"] }, { title: "OUTERWEAR", items: ["Denim Outerwear", "Bomber Jackets", "Cardigans", "Sweatshirts"] }],
   ],
   TRENDING: [
-    "TRENDING NOW",
-    "BEST SELLERS",
-    "VIRAL PICKS",
-    "NEW ARRIVALS",
-    "SALE",
+    [{ title: "TRENDING NOW", items: ["Viral Picks", "Best Sellers", "Most Loved", "What's New"] }, { title: "WOMEN", items: ["Trending Dresses", "Trending Tops", "Trending Jeans", "Trending Sets"] }],
+    [{ title: "MEN", items: ["Trending T-Shirts", "Trending Shirts", "Trending Pants", "Trending Shoes"] }, { title: "SOCIAL TRENDS", items: ["TikTok Made Me Buy It", "Instagram Trends", "Influencer Picks", "Viral Styles"] }],
+    [{ title: "NEW ARRIVALS", items: ["Just In", "This Week", "New Season", "Latest Drops"] }, { title: "BEST SELLERS", items: ["Top Rated", "Customer Favorites", "Most Purchased"] }],
+    [{ title: "OFFERS", badge: "HOT", items: ["Under ₹499", "Under ₹699", "Under ₹999", "Flash Deals"] }, { title: "EDITOR'S PICKS", items: ["Must Have", "Style Edit", "Weekend Looks", "Trending Colors"] }],
   ],
 };
 
@@ -84,7 +83,7 @@ export default function Navbar() {
 
             {/* Navigation */}
             <nav className="hidden h-full items-center md:flex">
-              {Object.keys(navItems).map((item) => (
+              {(Object.keys(navItems) as NavItem[]).map((item) => (
                 <div
                   key={item}
                   className="group relative flex h-full items-center"
@@ -108,35 +107,30 @@ export default function Navbar() {
                   </a>
 
                   {/* Mega Menu */}
-                  <div className="invisible absolute left-1/2 top-full w-[620px] -translate-x-1/2 translate-y-2 border-t border-neutral-200 bg-white px-8 py-7 opacity-0 shadow-[0_8px_25px_rgba(0,0,0,0.08)] transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                    
-                    <div className="grid grid-cols-4 gap-x-8 gap-y-4">
-                      {navItems[item as keyof typeof navItems].map(
-                        (subItem, index) => (
-                          <a
-                            key={subItem}
-                            href="#"
-                            className={`text-[12px] tracking-wide transition-colors hover:text-blue-600 ${
-                              index === 0
-                                ? "font-semibold text-black"
-                                : "text-neutral-500"
-                            }`}
-                          >
-                            {subItem}
-                          </a>
-                        )
-                      )}
+                  <div className="invisible fixed left-[4%] top-[94px] z-[120] w-[min(1120px,88vw)] max-h-[calc(100vh-125px)] -translate-y-2 overflow-y-auto border-t border-neutral-200 bg-white opacity-0 shadow-[0_8px_25px_rgba(0,0,0,0.12)] transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                    <div className="flex h-[42px] items-center border-b border-neutral-100 bg-white px-4 text-[11px]">
+                      <span className="mr-4 text-neutral-300">Shop By:</span>
+                      <span className="bg-[#f8f8f8] px-3 py-3 text-[15px] font-semibold tracking-[0.08em] text-[#254b64]">{item}</span>
                     </div>
 
-                    {/* Bottom link */}
-                    <div className="mt-6 border-t border-neutral-100 pt-5">
-                      <a
-                        href="#"
-                        className="text-[11px] font-semibold uppercase tracking-[0.12em] text-black hover:text-blue-600"
-                      >
-                        View All {item} →
-                      </a>
+                    <div className="grid grid-cols-4 gap-x-5 px-4 pb-5 pt-2">
+                      {navItems[item].map((column, columnIndex) => (
+                        <div key={columnIndex} className="space-y-3">
+                          {column.map((section) => (
+                            <div key={section.title}>
+                              <div className="mb-1 flex items-center gap-1">
+                                <h3 className="text-[13px] font-bold tracking-[0.05em] text-neutral-800">{section.title}</h3>
+                                {section.badge && <span className={`rounded-full px-1 py-px text-[5px] font-bold text-white ${section.badge === "NEW" ? "bg-red-500" : "bg-[#ffbf19]"}`}>{section.badge}</span>}
+                              </div>
+                              <div className="flex flex-col">
+                                {section.items.map((subItem) => <Link href={`/shop/${slugify(subItem)}`} key={subItem} className="w-fit py-0 text-[6px] leading-[10px] text-neutral-500 transition-colors hover:text-blue-600 hover:underline">{subItem}</Link>)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
                     </div>
+
                   </div>
                 </div>
               ))}

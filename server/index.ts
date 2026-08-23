@@ -7,6 +7,7 @@ import { db } from "./db";
 const app = express();
 const port = Number(process.env.PORT ?? 4000);
 const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
+const adminKey = process.env.ADMIN_KEY;
 
 type AuthenticatedRequest = Request & { userId?: number };
 
@@ -41,6 +42,11 @@ const requireAuth = (req: AuthenticatedRequest, res: Response, next: () => void)
   next();
 };
 
+const requireAdmin = (req: Request, res: Response, next: () => void) => {
+  if (!adminKey || req.headers["x-admin-key"] !== adminKey) return res.status(403).json({ error: "Admin access required" });
+  next();
+};
+
 app.get("/api/health", (_req, res) => res.json({ ok: true, service: "shein-api" }));
 
 app.get("/api/categories", (_req, res) => {
@@ -49,9 +55,11 @@ app.get("/api/categories", (_req, res) => {
 
 app.get("/api/products", (req, res) => {
   const category = typeof req.query.category === "string" ? req.query.category : undefined;
-  const products = category
-    ? db.prepare("SELECT products.*, categories.name AS category_name, categories.slug AS category_slug FROM products JOIN categories ON categories.id = products.category_id WHERE categories.slug = ? ORDER BY products.created_at DESC").all(category)
-    : db.prepare("SELECT products.*, categories.name AS category_name, categories.slug AS category_slug FROM products JOIN categories ON categories.id = products.category_id ORDER BY products.created_at DESC").all();
+  const search = typeof req.query.search === "string" ? `%${req.query.search}%` : "%";
+  const minPrice = Number(req.query.minPrice ?? 0);
+  const maxPrice = Number(req.query.maxPrice ?? 2147483647);
+  const sort = req.query.sort === "price-asc" ? "products.price ASC" : req.query.sort === "price-desc" ? "products.price DESC" : "products.created_at DESC";
+  const products = db.prepare(`SELECT products.*, categories.name AS category_name, categories.slug AS category_slug FROM products JOIN categories ON categories.id = products.category_id WHERE (? IS NULL OR categories.slug = ?) AND (products.name LIKE ? OR products.description LIKE ?) AND products.price BETWEEN ? AND ? ORDER BY ${sort}`).all(category ?? null, category ?? null, search, search, minPrice, maxPrice);
   res.json(products);
 });
 
@@ -122,6 +130,53 @@ app.post("/api/wishlist/:productId", requireAuth, (req: AuthenticatedRequest, re
 app.delete("/api/wishlist/:productId", requireAuth, (req: AuthenticatedRequest, res) => {
   db.prepare("DELETE FROM wishlist_items WHERE user_id = ? AND product_id = ?").run(req.userId, req.params.productId);
   res.status(204).send();
+});
+
+app.post("/api/admin/categories", requireAdmin, (req, res) => {
+  const { name, slug } = req.body as { name?: string; slug?: string };
+  if (!name || !slug) return res.status(400).json({ error: "name and slug are required" });
+  try {
+    const result = db.prepare("INSERT INTO categories (name, slug) VALUES (?, ?)").run(name, slug);
+    res.status(201).json({ id: result.lastInsertRowid, name, slug });
+  } catch { res.status(409).json({ error: "Category already exists" }); }
+});
+
+app.delete("/api/admin/categories/:id", requireAdmin, (req, res) => {
+  db.prepare("DELETE FROM categories WHERE id = ?").run(req.params.id);
+  res.status(204).send();
+});
+
+app.post("/api/admin/products", requireAdmin, (req, res) => {
+  const { categoryId, name, slug, description = "", price, imageUrl, stock = 0 } = req.body as { categoryId?: number; name?: string; slug?: string; description?: string; price?: number; imageUrl?: string; stock?: number };
+  if (!categoryId || !name || !slug || !price || !imageUrl) return res.status(400).json({ error: "categoryId, name, slug, price, and imageUrl are required" });
+  try {
+    const result = db.prepare("INSERT INTO products (category_id, name, slug, description, price, image_url, stock) VALUES (?, ?, ?, ?, ?, ?, ?)").run(categoryId, name, slug, description, price, imageUrl, stock);
+    res.status(201).json({ id: result.lastInsertRowid, name, slug });
+  } catch { res.status(409).json({ error: "Product slug already exists or category is invalid" }); }
+});
+
+app.patch("/api/admin/products/:id", requireAdmin, (req, res) => {
+  const { name, description, price, imageUrl, stock, categoryId } = req.body as { name?: string; description?: string; price?: number; imageUrl?: string; stock?: number; categoryId?: number };
+  const result = db.prepare("UPDATE products SET name = COALESCE(?, name), description = COALESCE(?, description), price = COALESCE(?, price), image_url = COALESCE(?, image_url), stock = COALESCE(?, stock), category_id = COALESCE(?, category_id) WHERE id = ?").run(name, description, price, imageUrl, stock, categoryId, req.params.id);
+  if (!result.changes) return res.status(404).json({ error: "Product not found" });
+  res.json({ ok: true });
+});
+
+app.delete("/api/admin/products/:id", requireAdmin, (req, res) => {
+  db.prepare("DELETE FROM products WHERE id = ?").run(req.params.id);
+  res.status(204).send();
+});
+
+app.get("/api/admin/orders", requireAdmin, (_req, res) => {
+  res.json(db.prepare("SELECT orders.*, users.email, users.name FROM orders JOIN users ON users.id = orders.user_id ORDER BY orders.created_at DESC").all());
+});
+
+app.patch("/api/admin/orders/:id", requireAdmin, (req, res) => {
+  const { status } = req.body as { status?: string };
+  if (!status || !["pending", "paid", "shipped", "delivered", "cancelled"].includes(status)) return res.status(400).json({ error: "Invalid order status" });
+  const result = db.prepare("UPDATE orders SET status = ? WHERE id = ?").run(status, req.params.id);
+  if (!result.changes) return res.status(404).json({ error: "Order not found" });
+  res.json({ ok: true });
 });
 
 app.post("/api/orders", requireAuth, (req: AuthenticatedRequest, res) => {
