@@ -5,6 +5,7 @@ import {
   ShoppingCart,
   User,
 } from "lucide-react";
+import Link from "next/link";
 
 const navItems = {
   WOMEN: [
@@ -146,13 +147,30 @@ export default function Navbar() {
                 <ShoppingCart className="h-[19px] w-[19px] stroke-[1.8]" />
               </button>
 
-              <button
-                type="button"
-                aria-label="Account"
-                className="flex h-7 w-7 items-center justify-center transition-transform hover:scale-110"
-              >
-                <User className="h-[19px] w-[19px] stroke-[1.8]" />
-              </button>
+              <div className="group relative flex h-full items-center">
+                <button
+                  type="button"
+                  aria-label="Account menu"
+                  className="flex h-7 w-7 items-center justify-center transition-transform hover:scale-110"
+                >
+                  <User className="h-[19px] w-[19px] stroke-[1.8]" />
+                </button>
+
+                <div className="invisible absolute right-0 top-full w-44 translate-y-2 border border-neutral-200 bg-white p-2 opacity-0 shadow-[0_8px_25px_rgba(0,0,0,0.12)] transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                  <Link
+                    href="/login"
+                    className="block px-3 py-2.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-black"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/login?mode=signup"
+                    className="block px-3 py-2.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-black"
+                  >
+                    Create account
+                  </Link>
+                </div>
+              </div>
 
               <button
                 type="button"
