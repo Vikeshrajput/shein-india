@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: shein-api
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm run start:api
+    envVars:
+      - key: FRONTEND_URL
+        value: https://vikeshrajput.github.io
+      - key: DATABASE_PATH
+        value: /var/data/shein.db
+    disk:
+      name: shein-data
+      mountPath: /var/data
+      sizeGB: 1

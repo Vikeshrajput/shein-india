@@ -1,4 +1,22 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SHEIN Inspired Storefront
+
+## Run locally
+
+```bash
+npm install
+copy .env.example .env
+npm run dev:api
+```
+
+In a second terminal, run `npm run dev` and open `http://localhost:3000`.
+
+The Express API listens on `http://localhost:4000` and creates `data/shein.db` automatically. Available resources include products, categories, authentication, cart, wishlist, orders, and health checks. See `server/index.ts` for the route contract.
+
+## Deployment
+
+The frontend deploys to GitHub Pages through `.github/workflows/deploy.yml`. The Express API requires a Node host; `render.yaml` is ready to deploy it on Render with a persistent SQLite disk.
+
+After deploying the Render service, add its URL as the GitHub repository variable `NEXT_PUBLIC_API_URL` with the `/api` suffix, then rerun the Pages workflow. Set the API's `FRONTEND_URL` to `https://vikeshrajput.github.io`.This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
