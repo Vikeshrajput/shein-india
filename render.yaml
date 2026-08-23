@@ -9,6 +9,8 @@ services:
         value: https://vikeshrajput.github.io
       - key: DATABASE_PATH
         value: /var/data/shein.db
+      - key: ADMIN_KEY
+        sync: false
     disk:
       name: shein-data
       mountPath: /var/data
