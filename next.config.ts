@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "export",
-  basePath: "/shein-india",
+  basePath: process.env.GITHUB_PAGES === "true" ? "/shein-india" : "",
   images: {
     unoptimized: true,
   },
