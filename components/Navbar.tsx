@@ -123,7 +123,7 @@ export default function Navbar() {
                                 {section.badge && <span className={`rounded-full px-1 py-px text-[5px] font-bold text-white ${section.badge === "NEW" ? "bg-red-500" : "bg-[#ffbf19]"}`}>{section.badge}</span>}
                               </div>
                               <div className="flex flex-col">
-                                {section.items.map((subItem) => <Link href={`/shop/${slugify(subItem)}`} key={subItem} className="w-fit py-0 text-[6px] leading-[10px] text-neutral-500 transition-colors hover:text-blue-600 hover:underline">{subItem}</Link>)}
+                                {section.items.map((subItem) => <Link href={`/shop?category=${slugify(subItem)}`} key={subItem} className="w-fit py-0 text-[6px] leading-[10px] text-neutral-500 transition-colors hover:text-blue-600 hover:underline">{subItem}</Link>)}
                               </div>
                             </div>
                           ))}
