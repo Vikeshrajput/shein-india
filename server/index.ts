@@ -82,6 +82,14 @@ app.post("/api/auth/login", (req, res) => {
   res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
 });
 
+app.post("/api/auth/phone/start", (req, res) => {
+  const { mobile } = req.body as { mobile?: string };
+  const normalizedMobile = mobile?.replace(/\D/g, "");
+  if (!normalizedMobile || normalizedMobile.length !== 10) return res.status(400).json({ error: "Enter a valid 10-digit mobile number" });
+  const result = db.prepare("INSERT INTO login_requests (mobile) VALUES (?)").run(normalizedMobile);
+  res.status(201).json({ requestId: result.lastInsertRowid, message: "Verification request created" });
+});
+
 app.get("/api/me", requireAuth, (req: AuthenticatedRequest, res) => {
   res.json(db.prepare("SELECT id, email, name, created_at FROM users WHERE id = ?").get(req.userId));
 });

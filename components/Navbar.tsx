@@ -1,9 +1,13 @@
+'use client';
+
+import { useState } from "react";
 import {
   Headphones,
   Heart,
   Search,
   ShoppingCart,
   User,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -36,7 +40,34 @@ const navItems = {
 };
 
 export default function Navbar() {
+  const [activePopup, setActivePopup] = useState<"wishlist" | "cart" | null>(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [mobile, setMobile] = useState("");
+  const [loginMessage, setLoginMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const startPhoneLogin = async () => {
+    setIsSubmitting(true);
+    setLoginMessage("");
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+      const response = await fetch(`${apiBaseUrl}/auth/phone/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Unable to continue");
+      setLoginMessage("Verification request created. OTP delivery can be connected next.");
+    } catch (error) {
+      setLoginMessage(error instanceof Error ? error.message : "Unable to continue");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
+    <>
     <header className="relative z-50 w-full border-t-3 border-[#2d283a] bg-white">
       <div className="mx-auto w-full max-w-[1800px] px-5 sm:px-7 lg:px-10 xl:px-[4%] 2xl:px-[5%]">
         
@@ -134,6 +165,7 @@ export default function Navbar() {
               <button
                 type="button"
                 aria-label="Favorites"
+                onClick={() => { setActivePopup(activePopup === "wishlist" ? null : "wishlist"); setShowLogin(false); }}
                 className="flex h-7 w-7 items-center justify-center transition-transform hover:scale-110"
               >
                 <Heart className="h-[19px] w-[19px] stroke-[1.8]" />
@@ -142,6 +174,7 @@ export default function Navbar() {
               <button
                 type="button"
                 aria-label="Cart"
+                onClick={() => { setActivePopup(activePopup === "cart" ? null : "cart"); setShowLogin(false); }}
                 className="flex h-7 w-7 items-center justify-center transition-transform hover:scale-110"
               >
                 <ShoppingCart className="h-[19px] w-[19px] stroke-[1.8]" />
@@ -151,6 +184,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   aria-label="Account menu"
+                  onClick={() => { setShowLogin(true); setActivePopup(null); }}
                   className="flex h-7 w-7 items-center justify-center transition-transform hover:scale-110"
                 >
                   <User className="h-[19px] w-[19px] stroke-[1.8]" />
@@ -185,5 +219,32 @@ export default function Navbar() {
         </div>
       </div>
     </header>
+    {activePopup === "wishlist" && (
+      <div className="fixed right-24 top-[74px] z-[200] w-[215px] bg-white px-5 py-5 text-center shadow-[0_5px_20px_rgba(0,0,0,0.12)]">
+        <button type="button" aria-label="Close wishlist" onClick={() => setActivePopup(null)} className="absolute right-2 top-2 text-neutral-400 hover:text-black"><X className="h-3.5 w-3.5" /></button>
+        <button type="button" onClick={() => setShowLogin(true)} className="mb-5 mt-1 h-[39px] w-full border border-black text-[13px] font-medium hover:bg-neutral-100">SIGN IN</button>
+        <p className="text-[12px] leading-[18px] text-neutral-500">To add or view items in your wishlist</p>
+      </div>
+    )}
+    {activePopup === "cart" && (
+      <div className="fixed right-16 top-[74px] z-[200] w-[230px] bg-white px-5 py-5 shadow-[0_5px_20px_rgba(0,0,0,0.12)]">
+        <p className="text-[17px] font-medium text-neutral-700">Your Bag Is Empty</p>
+        <p className="mt-1 text-[17px] font-medium text-neutral-700">Start Filling It Up!</p>
+        <div className="mt-5 border-t border-neutral-100 pt-4 text-[10px] leading-4 text-neutral-400">Free Shipping & Returns | 100% Handpicked | Assured Quality</div>
+      </div>
+    )}
+    {showLogin && (
+      <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/20 px-5" onClick={() => setShowLogin(false)}>
+        <div className="relative w-full max-w-[450px] bg-white px-7 py-10 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+          <button type="button" aria-label="Close login" onClick={() => setShowLogin(false)} className="absolute right-4 top-4 text-neutral-600 hover:text-black"><X className="h-5 w-5" /></button>
+          <h2 className="text-[25px] font-normal text-neutral-800">Welcome to SHEIN</h2>
+          <label className="mt-8 block text-[14px] text-[#31536a]">Enter Mobile Number *<input type="tel" value={mobile} onChange={(event) => setMobile(event.target.value)} placeholder="10-digit mobile number" className="mt-2 h-[43px] w-full border-b border-neutral-400 bg-transparent text-neutral-900 outline-none focus:border-black" /></label>
+          {loginMessage && <p className="mt-4 text-sm text-neutral-600" role="status">{loginMessage}</p>}
+          <button type="button" disabled={isSubmitting} onClick={startPhoneLogin} className="mt-9 h-[45px] w-full bg-[#242424] text-[14px] font-medium tracking-[0.1em] text-white transition-colors hover:bg-black disabled:cursor-wait disabled:opacity-60">{isSubmitting ? "PLEASE WAIT" : "CONTINUE"}</button>
+          <p className="mt-6 text-[12px] leading-5 text-neutral-500">By Signing Up, I agree to <a href="#" className="text-[#16749b]">Terms &amp; Conditions</a> and <a href="#" className="text-[#16749b]">Privacy Policy</a></p>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
