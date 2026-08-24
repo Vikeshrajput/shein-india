@@ -4,8 +4,11 @@ import { useState } from "react";
 import {
   Headphones,
   Heart,
+  Home as HomeIcon,
+  List,
   Search,
   ShoppingCart,
+  Sparkles,
   User,
   X,
 } from "lucide-react";
@@ -44,6 +47,7 @@ export default function Navbar() {
   const [mobile, setMobile] = useState("");
   const [loginMessage, setLoginMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAppBanner, setShowAppBanner] = useState(true);
 
   const startPhoneLogin = async () => {
     setIsSubmitting(true);
@@ -67,19 +71,29 @@ export default function Navbar() {
 
   return (
     <>
-    <header className="relative z-50 w-full border-t-3 border-[#2d283a] bg-white">
+    {showAppBanner && <div className="flex h-[70px] items-center gap-3 bg-gradient-to-r from-[#fbe0e5] to-[#fff0d4] px-3 sm:hidden">
+      <button type="button" aria-label="Dismiss app promotion" onClick={() => setShowAppBanner(false)} className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[13px] text-neutral-500 hover:bg-white/60">x</button>
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded border-2 border-black text-sm font-bold">S</div>
+      <div className="min-w-0 flex-1"><p className="text-xs font-bold">SHEIN INDIA Online</p><p className="text-[10px] leading-3 text-neutral-600">Download SHEIN app. Get up to 40% off on mobile app exclusively.</p></div>
+      <button type="button" className="shrink-0 bg-black px-3 py-2 text-[10px] font-bold text-white">Get App</button>
+    </div>}
+    <div className="border-b border-neutral-200 bg-white sm:hidden">
+      <div className="flex h-[62px] items-center justify-center gap-5 px-4"><button type="button" aria-label="Search" className="absolute left-1/2 -translate-x-[108px]"><Search className="h-5 w-5" /></button><Link href="/" className="text-[25px] font-black tracking-[0.2em]">SHEIN</Link><button type="button" aria-label="Favorites" onClick={() => { setActivePopup(activePopup === "wishlist" ? null : "wishlist"); setShowLogin(false); }}><Heart className="h-6 w-6" /></button><button type="button" aria-label="Cart" onClick={() => { setActivePopup(activePopup === "cart" ? null : "cart"); setShowLogin(false); }}><ShoppingCart className="h-6 w-6" /></button></div>
+      <nav className="flex gap-6 overflow-x-auto px-4 pb-3 text-xs font-semibold text-neutral-600 [scrollbar-width:none]"><Link href="/shop" className="flex shrink-0 items-center gap-1 text-black"><Sparkles className="h-4 w-4" /> New drop</Link><Link href="/shop?category=women" className="shrink-0">Women</Link><Link href="/shop?category=men" className="shrink-0">Men</Link><Link href="/shop?category=dresses" className="shrink-0">Dresses</Link><Link href="/shop" className="shrink-0">Trending</Link></nav>
+    </div>
+    <header className="relative z-50 hidden w-full border-t-3 border-[#2d283a] bg-white sm:block">
       <div className="mx-auto w-full max-w-[1800px] px-5 sm:px-7 lg:px-10 xl:px-[4%] 2xl:px-[5%]">
         
         {/* Main Navbar */}
-        <div className="flex h-[86px] items-center">
+        <div className="flex h-[64px] items-center sm:h-[76px] lg:h-[86px]">
 
           {/* Logo */}
-          <div className="shrink-0 select-none text-[29px] font-black tracking-[0.16em] text-black">
+          <div className="shrink-0 select-none text-[22px] font-black tracking-[0.14em] text-black sm:text-[26px] lg:text-[29px]">
             SHEIN
           </div>
 
           {/* Right Side */}
-          <div className="ml-auto pr-[140px] flex h-full items-center">
+          <div className="ml-auto flex h-full min-w-0 items-center sm:pr-2 lg:pr-8 xl:pr-[140px]">
 
             {/* Navigation */}
             <nav className="hidden h-full items-center md:flex">
@@ -154,7 +168,7 @@ export default function Navbar() {
             </div>
 
             {/* Icons */}
-            <div className="ml-[30px] flex items-center gap-[21px] pr-2 text-black xl:pr-4">
+            <div className="ml-2 flex items-center gap-1 text-black sm:ml-4 sm:gap-2 lg:ml-7 lg:gap-4 xl:gap-[21px] xl:pr-4">
               
               <button
                 type="button"
@@ -213,6 +227,9 @@ export default function Navbar() {
         </div>
       </div>
     </header>
+    <nav className="fixed inset-x-0 bottom-0 z-[150] grid h-[62px] grid-cols-5 border-t border-neutral-200 bg-white pb-1 sm:hidden">
+      {[[HomeIcon, "Home", "/"], [List, "Category", "/shop"], [Sparkles, "New", "/shop"], [ShoppingCart, "Bag", "/shop"], [User, "Me", "/login"]].map(([Icon, label, href]) => <Link href={String(href)} key={String(label)} className="flex flex-col items-center justify-center gap-1 text-[10px] text-neutral-700"><Icon className="h-[19px] w-[19px]" /><span>{String(label)}</span></Link>)}
+    </nav>
     {activePopup === "wishlist" && (
       <div className="fixed right-24 top-[74px] z-[200] w-[215px] bg-white px-5 py-5 text-center shadow-[0_5px_20px_rgba(0,0,0,0.12)]">
         <button type="button" aria-label="Close wishlist" onClick={() => setActivePopup(null)} className="absolute right-2 top-2 text-neutral-400 hover:text-black"><X className="h-3.5 w-3.5" /></button>

@@ -41,3 +41,40 @@ input {
 button {
   cursor: pointer;
 }
+
+@media (max-width: 639px) {
+  main {
+    padding-bottom: 62px;
+  }
+
+  main > section:first-child > div {
+    height: 390px;
+  }
+
+  main > section:nth-of-type(2) {
+    display: none;
+  }
+
+  main > section:nth-of-type(3) {
+    padding: 10px 8px 14px;
+  }
+
+  main > section:nth-of-type(4) > div > div:last-child {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px 5px;
+  }
+
+  main > section:nth-of-type(5) > div > div:last-child {
+    display: flex;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  main > section:nth-of-type(5) > div > div:last-child > a {
+    flex: 0 0 24%;
+  }
+
+  footer {
+    padding-bottom: 78px;
+  }
+}
