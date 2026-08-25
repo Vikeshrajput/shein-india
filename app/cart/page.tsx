@@ -41,7 +41,7 @@ export default function CartPage() {
       <header className="border-b border-[#d9d9d9] py-6 px-12">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0">
+          <Link href="/" className="shrink-0">
             <div className="text-3xl font-black tracking-widest text-[#222222]" style={{ letterSpacing: '6px' }}>
               SHEIN
             </div>
@@ -114,7 +114,7 @@ export default function CartPage() {
                       className="flex gap-4 pb-6 border-b border-[#d9d9d9] last:border-b-0"
                     >
                       {/* Product Image */}
-                      <div className="flex-shrink-0">
+                      <div className="shrink-0">
                         <img
                           src={item.product.images[0]}
                           alt={item.product.name}

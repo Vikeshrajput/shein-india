@@ -13,7 +13,7 @@ export default function Header() {
       {/* Main header container */}
       <div className="h-24 px-12 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex-shrink-0">
+        <Link href="/" className="shrink-0">
           <div className="text-3xl font-black tracking-widest text-[#222222]" style={{ letterSpacing: '6px' }}>
             SHEIN
           </div>
@@ -38,7 +38,7 @@ export default function Header() {
         </nav>
 
         {/* Search bar */}
-        <div className="flex-shrink-0 mr-8 flex items-center">
+        <div className="shrink-0 mr-8 flex items-center">
           <div className="flex items-center bg-white border border-[#666666] rounded-3xl overflow-hidden" style={{ width: '270px', height: '38px' }}>
             <input
               type="text"

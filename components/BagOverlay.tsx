@@ -39,7 +39,7 @@ export default function BagOverlay({ isOpen, onClose, latestItem }: BagOverlayPr
           {/* Product Summary */}
           <div className="flex gap-4 mb-8 pb-8 border-b border-[#d9d9d9]">
             {/* Thumbnail */}
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <img
                 src={product.images[0]}
                 alt={product.name}
