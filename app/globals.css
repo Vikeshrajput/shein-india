@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f2f1;
-  --foreground: #171717;
+  --background: #ffffff;
+  --foreground: #222222;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --border-color: #d9d9d9;
+  --offer-green: #3f9b78;
+  --link-teal: #4c8fa3;
+  --footer-bg: #344d5f;
 }
 
 @theme inline {
@@ -10,6 +16,19 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  --animation-slide-in-right: slide-in-right 0.3s ease-out;
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 * {
@@ -40,6 +59,10 @@ input {
 
 button {
   cursor: pointer;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
 }
 
 @media (max-width: 639px) {
